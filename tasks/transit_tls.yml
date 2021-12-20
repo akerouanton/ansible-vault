@@ -1,0 +1,27 @@
+---
+- name: Copy Vault transit SSL Certificate and Key
+  become: true
+  copy:
+    remote_src: "{{ vault_tls_files_remote_src }}"
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ vault_user }}"
+    group: "{{ vault_group }}"
+    mode: "{{ item.mode }}"
+  with_items:
+    - src: "{{ vault_transit_tls_src_files }}/{{ vault_transit_tls_ca_cert_file }}"
+      dest: "{{ vault_backend_tls_config_path }}/{{ vault_transit_tls_ca_cert_file }}"
+      mode: "0600"
+    - src: "{{ vault_transit_tls_src_files }}/{{ vault_transit_tls_client_cert_file }}"
+      dest: "{{ vault_backend_tls_config_path }}/{{ vault_transit_tls_client_cert_file }}"
+      mode: "0600"
+    - src: "{{ vault_transit_tls_src_files }}/{{ vault_transit_tls_client_key_file }}"
+      dest: "{{ vault_backend_tls_config_path }}/{{ vault_transit_tls_client_key_file }}"
+      mode: "0600"
+  when:
+    - vault_tls_copy_keys | bool
+  notify:
+    - Restart vault
+    - Reload vault
+  tags:
+    - transit-tls
