@@ -15,11 +15,14 @@
     - src: "{{ vault_transit_tls_src_files }}/{{ vault_transit_tls_client_cert_file }}"
       dest: "{{ vault_backend_tls_config_path }}/{{ vault_transit_tls_client_cert_file }}"
       mode: "0600"
+      cond: "{{ vault_transit_use_mtls | bool }}"
     - src: "{{ vault_transit_tls_src_files }}/{{ vault_transit_tls_client_key_file }}"
       dest: "{{ vault_backend_tls_config_path }}/{{ vault_transit_tls_client_key_file }}"
       mode: "0600"
+      cond: "{{ vault_transit_use_mtls | bool }}"
   when:
     - vault_tls_copy_keys | bool
+    - "'cond' not in item or item.cond"
   notify:
     - Restart vault
     - Reload vault
